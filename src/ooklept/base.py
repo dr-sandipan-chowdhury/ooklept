@@ -131,6 +131,11 @@ class Element:
             self._style_dict.pop(style, None)
 
         return self
+    
+    def text(self, data:str):
+        with self:
+            Text(data)
+        return self
 
     def __enter__(self):
         self._token = Element.current_context.set(self)
