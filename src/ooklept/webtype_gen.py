@@ -1,6 +1,8 @@
 import json
-import keyword
 from pathlib import Path
+
+from ooklept.helper import Helper
+
 
 # Define and Validate `webdata
 webdata_dir = Path(__file__).parent / "webdata"
@@ -78,21 +80,6 @@ def literal_from_vs(s:str)->list[str]:
                         result.append(vname)
     return result
 
-def cvt_to_PyID(x:str):
-    x = x.replace("-", "_")
-    while x in keyword.kwlist:
-        x += "_"
-    return x
-
-def cvt_from_PyID(py:str):
-    if py[-1] == "_":
-        while py != "" and py[:-1] in keyword.kwlist:
-            if py[-1] == "_":
-                py = py[:-1]
-            else:
-                break
-    py = py.replace("_", "-")
-    return py
 
 def create_HTMLAttribute():
     attrs = dict[str, list[str]]()
@@ -137,7 +124,7 @@ def create_HTMLAttribute():
 class HTMLAttribute(TypedDict, total=False):
 """
     for k, v in attrs.items():
-        result += f'    {cvt_to_PyID(k)}:'
+        result += f'    {Helper.preprocess(k)}:'
         if len(v) > 0:
             result+= "Literal["
             for vi in v:
