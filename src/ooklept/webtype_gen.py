@@ -189,7 +189,7 @@ class CSSProperty(TypedDict, total=False):
                 typestr += f'"{i}", '
         if len(typestr) > 0:
             typestr = f"Literal[{typestr}] | "
-        result += f"    {k}: {typestr}{pytypestr.rstrip().rstrip("|")}\n"
+        result += f"    {k}: {typestr}{pytypestr.rstrip().rstrip('|')}\n"
 
     return result
 
