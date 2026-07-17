@@ -4,9 +4,27 @@ import re
 from contextvars import ContextVar
 from typing import Unpack
 from warnings import warn
+import keyword
 
-from ooklept.helper import Helper
 from ooklept.webtypes import CSSProperty, HTMLAttribute, HTMLTag
+
+
+def preprocess(non_py_word: str) -> str | None:
+    if not non_py_word.isidentifier():
+        if "-" in non_py_word:
+            if non_py_word.rindex("-") == len(non_py_word) - 1:
+                raise ValueError(
+                    f"`-` in end of non_py_word `{non_py_word}` creates opening for ambiguity."
+                )
+            non_py_word = non_py_word.replace("-", "_")
+        else:
+            raise ValueError(
+                f"non_py_word `{non_py_word}` contains characters that can't be casted to python identifier without data loss."
+            )
+
+    while non_py_word in keyword.kwlist:
+        non_py_word += "_"
+    return non_py_word
 
 
 class Element:
@@ -17,7 +35,7 @@ class Element:
     def __init__(self, name: HTMLTag | str):
         self.name = name
         self._attrs_dict = {}
-        self._style_dict = {}  # To avoid decompilation of css strings to dict
+        self._style_dict = {}
         self._classes = []
         self._children = []
         self._context_cache = None
@@ -47,7 +65,7 @@ class Element:
                     warn(
                         f"html attr {k} in kwargs is wasted as it is already in `d`. Data lost."
                     )
-        processed = {Helper.preprocess(k): v for k, v in to_be_preprocessed.items()}
+        processed = {preprocess(k): v for k, v in to_be_preprocessed.items()}
         processed.update(d)  # prefernce d > kwargs
         self._attrs_dict.update(processed)
         return self
@@ -76,13 +94,13 @@ class Element:
                 to_be_processed[k] = v
             else:
                 if d.get(k) is None:
-                    d[k] = v # preference d > kwargs
+                    d[k] = v  # preference d > kwargs
                 else:
                     warn(
                         f"css prop {k} in kwargs is wasted as it is already in `d`. Data lost."
                     )
-        processed = {Helper.preprocess(k): v for k, v in to_be_processed.items()}
-        d.update(processed) # preference d > kwargs
+        processed = {preprocess(k): v for k, v in to_be_processed.items()}
+        d.update(processed)  # preference d > kwargs
         self._style_dict.update(d)
         return self
 
@@ -114,7 +132,7 @@ class Element:
             attr_str += f" class={class_str}"
 
         if len(attr_str) > 0:
-            attr_str = " "+attr_str
+            attr_str = " " + attr_str
 
         return f"<{self.name}{attr_str}>{''.join([str(i) for i in self._children])}</{self.name}>"
 
