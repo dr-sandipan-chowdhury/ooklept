@@ -120,10 +120,6 @@ class Element:
                 v = str(v)
                 attr_str += k + "=" + f'"{html.escape(v, quote=True)}"' + " "
 
-        # attr_str = " ".join(
-        #     [f'{k}="{html.escape(str(v), quote=True)}"' for k, v in self._attrs_dict.items()]
-        # )
-
         if len(self._style_dict) > 0:
             style_val = " ".join([f"{k}:{v};" for k, v in self._style_dict.items()])
             attr_str += f' style="{html.escape(style_val, quote=True)}"'
