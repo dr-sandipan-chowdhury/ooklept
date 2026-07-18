@@ -36,6 +36,7 @@ class Element:
     ):
         d = dict(d or {})
 
+        # you can't set style or class from attr to remove confusions
         if "style" in kwargs or "style" in d:
             raise KeyError("Please use .style() method instead.")
         if "class_" in kwargs or "class" in d:
