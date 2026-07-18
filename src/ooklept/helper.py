@@ -1,6 +1,8 @@
 # ooklept/helper.py
 
 import keyword
+import sys
+from dataclasses import dataclass
 
 
 def convert_thing_to_python_identifier(thing: str) -> str | None:
@@ -33,3 +35,16 @@ def recover_thing_from_python_identifier(python_identifier: str) -> str | None:
 
     thing = python_identifier.replace("_", "-")
     return thing
+
+
+@dataclass
+class MultiDict:
+    _GET: dict[str, str]
+    _POST: dict[str, str]
+
+
+def get_multi_dict():
+    return MultiDict(
+        _GET=sys._getframe(1).f_globals.get("_GET", {}),
+        _POST=sys._getframe(1).f_globals.get("_POST", {}),
+    )
