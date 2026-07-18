@@ -7,320 +7,323 @@ from typing import Literal, TypedDict
 HTMLTag = Literal['html', 'head', 'title', 'base', 'link', 'meta', 'style', 'body', 'article', 'section', 'nav', 'aside', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'footer', 'address', 'p', 'hr', 'pre', 'blockquote', 'ol', 'ul', 'li', 'dl', 'dt', 'dd', 'figure', 'figcaption', 'main', 'div', 'a', 'em', 'strong', 'small', 's', 'cite', 'q', 'dfn', 'abbr', 'ruby', 'rb', 'rt', 'rp', 'time', 'code', 'var', 'samp', 'kbd', 'sub', 'sup', 'i', 'b', 'u', 'mark', 'bdi', 'bdo', 'span', 'br', 'wbr', 'ins', 'del', 'picture', 'img', 'iframe', 'embed', 'object', 'param', 'video', 'audio', 'source', 'track', 'map', 'area', 'table', 'caption', 'colgroup', 'col', 'tbody', 'thead', 'tfoot', 'tr', 'td', 'th', 'form', 'label', 'input', 'button', 'select', 'datalist', 'optgroup', 'option', 'textarea', 'output', 'progress', 'meter', 'fieldset', 'legend', 'details', 'summary', 'dialog', 'script', 'noscript', 'template', 'canvas', 'slot', 'data', 'hgroup', 'menu', 'search', 'fencedframe', 'selectedcontent']
 
 
+HTMLVoidTag = Literal['base', 'link', 'meta', 'hr', 'br', 'wbr', 'img', 'embed', 'param', 'source', 'track', 'area', 'col', 'input']
+
+
 class HTMLAttribute(TypedDict, total=False):
-    manifest:str
-    href:str
-    target:Literal["_blank", "_parent", "_self", "_top", ] | str
-    crossorigin:Literal["anonymous", "use-credentials", ] | str
-    rel:str
-    media:str
-    hreflang:str
-    type:Literal["1", "A", "I", "a", "button", "checkbox", "color", "date", "datetime", "datetime-local", "email", "file", "hidden", "i", "image", "month", "number", "password", "radio", "range", "reset", "search", "submit", "tel", "text", "time", "url", "week", ] | str
-    sizes:str
-    name:str
-    http_equiv:str
-    content:str
-    charset:str
-    nonce:str
-    scoped:str
-    onafterprint:str
-    onbeforeprint:str
-    onbeforeunload:str
-    onhashchange:str
-    onlanguagechange:str
-    onmessage:str
-    onoffline:str
-    ononline:str
-    onpagehide:str
-    onpageshow:str
-    onpopstate:str
-    onstorage:str
-    onunload:str
-    cite:str
-    reversed:str
-    start:str
-    value:str
-    download:str
-    ping:str
-    datetime:str
-    alt:str
-    src:str
-    srcset:str
-    usemap:str
-    ismap:str
-    width:str
-    height:str
-    decoding:Literal["async", "auto", "sync", ] | str
-    loading:Literal["eager", "lazy", ] | str
-    fetchpriority:Literal["auto", "high", "low", ] | str
-    referrerpolicy:Literal["no-referrer", "no-referrer-when-downgrade", "origin", "origin-when-cross-origin", "same-origin", "strict-origin", "strict-origin-when-cross-origin", "unsafe-url", ] | str
-    srcdoc:str
-    sandbox:Literal["allow-forms", "allow-modals", "allow-pointer-lock", "allow-popups", "allow-popups-to-escape-sandbox", "allow-same-origin", "allow-scripts", "allow-top-navigation", ] | str
-    seamless:str
-    allowfullscreen:str
-    data:str
-    typemustmatch:str
-    form:str
-    poster:str
-    preload:Literal["auto", "metadata", "none", ] | str
-    autoplay:str
-    mediagroup:str
-    loop:str
-    muted:str
-    controls:str
-    default:str
-    kind:Literal["captions", "chapters", "descriptions", "metadata", "subtitles", ] | str
-    label:str
-    srclang:str
-    coords:str
-    shape:Literal["circle", "default", "poly", "rect", ] | str
-    border:str
-    span:str
-    colspan:str
-    rowspan:str
-    headers:str
-    scope:Literal["col", "colgroup", "row", "rowgroup", ] | str
-    sorted:str
-    abbr:str
-    accept_charset:str
-    action:str
-    autocomplete:Literal["additional-name", "address-level1", "address-level2", "address-level3", "address-level4", "address-line1", "address-line2", "address-line3", "bday", "bday-day", "bday-month", "bday-year", "billing", "cc-additional-name", "cc-csc", "cc-exp", "cc-exp-month", "cc-exp-year", "cc-family-name", "cc-given-name", "cc-name", "cc-number", "cc-type", "country", "country-name", "current-password", "email", "family-name", "fax", "given-name", "home", "honorific-prefix", "honorific-suffix", "impp", "language", "mobile", "name", "new-password", "nickname", "off", "on", "organization", "organization-title", "pager", "photo", "postal-code", "sex", "shipping", "street-address", "tel", "tel-area-code", "tel-country-code", "tel-extension", "tel-local", "tel-local-prefix", "tel-local-suffix", "tel-national", "transaction-amount", "transaction-currency", "url", "username", "work", ] | str
-    enctype:Literal["application/x-www-form-urlencoded", "multipart/form-data", "text/plain", ] | str
-    method:Literal["dialog", "get", "post", ] | str
-    novalidate:str
-    for_:str
-    accept:str
-    autofocus:str
-    checked:str
-    dirname:str
-    disabled:str
-    formaction:str
-    formenctype:Literal["application/x-www-form-urlencoded", "multipart/form-data", "text/plain", ] | str
-    formmethod:Literal["get", "post", ] | str
-    formnovalidate:str
-    formtarget:str
-    inputmode:Literal["email", "full-width-latin", "kana", "kana-name", "katakana", "latin", "latin-name", "latin-prose", "numeric", "tel", "url", "verbatim", ] | str
-    list:str
-    max:str
-    maxlength:str
-    min:str
-    minlength:str
-    multiple:str
-    pattern:str
-    placeholder:str
-    popovertarget:str
-    popovertargetaction:str
-    readonly:str
-    required:str
-    size:str
-    step:str
-    selected:str
-    cols:str
-    rows:str
-    wrap:Literal["hard", "soft", ] | str
-    low:str
-    high:str
-    optimum:str
-    open:str
-    async_:str
-    defer:str
-    allow:str
-    accesskey:str
-    autocapitalize:str
-    autocorrect:Literal["off", "on", ] | str
-    class_:str
-    contenteditable:str
-    contextmenu:str
-    dir:Literal["auto", "ltr", "rtl", ] | str
-    draggable:Literal["false", "true", ] | str
-    dropzone:str
-    enterkeyhint:Literal["done", "enter", "go", "next", "previous", "search", "send", ] | str
-    exportparts:str
-    hidden:str
-    id:str
-    inert:str
-    is_:str
-    itemid:str
-    itemprop:str
-    itemref:str
-    itemscope:str
-    itemtype:str
-    lang:str
-    part:str
-    popover:Literal["auto", "hint", "manual", ] | str
-    role:Literal["alert", "alertdialog", "application", "article", "banner", "button", "cell", "checkbox", "columnheader", "combobox", "complementary", "contentinfo", "definition", "dialog", "directory", "doc-abstract", "doc-acknowledgments", "doc-afterword", "doc-appendix", "doc-backlink", "doc-biblioentry", "doc-bibliography", "doc-biblioref", "doc-chapter", "doc-colophon", "doc-conclusion", "doc-cover", "doc-credit", "doc-credits", "doc-dedication", "doc-endnote", "doc-endnotes", "doc-epigraph", "doc-epilogue", "doc-errata", "doc-example", "doc-footnote", "doc-foreword", "doc-glossary", "doc-glossref", "doc-index", "doc-introduction", "doc-noteref", "doc-notice", "doc-pagebreak", "doc-pagelist", "doc-part", "doc-preface", "doc-prologue", "doc-pullquote", "doc-qna", "doc-subtitle", "doc-tip", "doc-toc", "document", "feed", "figure", "form", "grid", "gridcell", "group", "heading", "img", "link", "list", "listbox", "listitem", "log", "main", "marquee", "math", "menu", "menubar", "menuitem", "menuitemcheckbox", "menuitemradio", "navigation", "none", "note", "option", "presentation", "progressbar", "radio", "radiogroup", "region", "row", "rowgroup", "rowheader", "scrollbar", "search", "searchbox", "separator", "slider", "spinbutton", "status", "switch", "tab", "table", "tablist", "tabpanel", "term", "text", "textbox", "timer", "toolbar", "tooltip", "tree", "treegrid", "treeitem", ] | str
-    slot:str
-    spellcheck:Literal["false", "true", ] | str
-    style:str
-    tabindex:str
-    title:str
-    translate:Literal["no", "yes", ] | str
-    virtualkeyboardpolicy:Literal["false", "true", ] | str
-    onabort:str
-    onanimationend:str
-    onanimationiteration:str
-    onanimationstart:str
-    onappinstalled:str
-    onaudioprocess:str
-    onaudioend:str
-    onaudiostart:str
-    onbeginEvent:str
-    onblocked:str
-    onblur:str
-    onboundary:str
-    oncached:str
-    oncanplay:str
-    oncanplaythrough:str
-    onchange:str
-    onchargingchange:str
-    onchargingtimechange:str
-    onchecking:str
-    onclick:str
-    onclose:str
-    oncomplete:str
-    oncompositionend:str
-    oncompositionstart:str
-    oncompositionupdate:str
-    oncontextmenu:str
-    oncopy:str
-    oncut:str
-    ondblclick:str
-    ondevicechange:str
-    ondevicelight:str
-    ondevicemotion:str
-    ondeviceorientation:str
-    ondeviceproximity:str
-    ondischargingtimechange:str
-    onDOMActivate:str
-    onDOMAttributeNameChanged:str
-    onDOMAttrModified:str
-    onDOMCharacterDataModified:str
-    onDOMContentLoaded:str
-    onDOMElementNameChanged:str
-    onDOMFocusIn:str
-    onDOMFocusOut:str
-    onDOMNodeInserted:str
-    onDOMNodeInsertedIntoDocument:str
-    onDOMNodeRemoved:str
-    onDOMNodeRemovedFromDocument:str
-    onDOMSubtreeModified:str
-    ondownloading:str
-    ondrag:str
-    ondragend:str
-    ondragenter:str
-    ondragleave:str
-    ondragover:str
-    ondragstart:str
-    ondrop:str
-    ondurationchange:str
-    onemptied:str
-    onend:str
-    onended:str
-    onendEvent:str
-    onerror:str
-    onfocus:str
-    onfocusin:str
-    onfocusout:str
-    onfullscreenchange:str
-    onfullscreenerror:str
-    ongamepadconnected:str
-    ongamepaddisconnected:str
-    ongotpointercapture:str
-    onlostpointercapture:str
-    oninput:str
-    oninvalid:str
-    onkeydown:str
-    onkeypress:str
-    onkeyup:str
-    onlevelchange:str
-    onload:str
-    onloadeddata:str
-    onloadedmetadata:str
-    onloadend:str
-    onloadstart:str
-    onmark:str
-    onmessageerror:str
-    onmousedown:str
-    onmouseenter:str
-    onmouseleave:str
-    onmousemove:str
-    onmouseout:str
-    onmouseover:str
-    onmouseup:str
-    onnomatch:str
-    onnotificationclick:str
-    onnoupdate:str
-    onobsolete:str
-    onopen:str
-    onorientationchange:str
-    onpaste:str
-    onpause:str
-    onpointercancel:str
-    onpointerdown:str
-    onpointerenter:str
-    onpointerleave:str
-    onpointerlockchange:str
-    onpointerlockerror:str
-    onpointermove:str
-    onpointerout:str
-    onpointerover:str
-    onpointerup:str
-    onplay:str
-    onplaying:str
-    onprogress:str
-    onpush:str
-    onpushsubscriptionchange:str
-    onratechange:str
-    onreadystatechange:str
-    onrepeatEvent:str
-    onreset:str
-    onresize:str
-    onresourcetimingbufferfull:str
-    onresult:str
-    onresume:str
-    onscroll:str
-    onseeked:str
-    onseeking:str
-    onselect:str
-    onselectstart:str
-    onselectionchange:str
-    onshow:str
-    onslotchange:str
-    onsoundend:str
-    onsoundstart:str
-    onspeechend:str
-    onspeechstart:str
-    onstalled:str
-    onstart:str
-    onsubmit:str
-    onsuccess:str
-    onsuspend:str
-    onSVGAbort:str
-    onSVGError:str
-    onSVGLoad:str
-    onSVGResize:str
-    onSVGScroll:str
-    onSVGUnload:str
-    onSVGZoom:str
-    ontimeout:str
-    ontimeupdate:str
-    ontouchcancel:str
-    ontouchend:str
-    ontouchmove:str
-    ontouchstart:str
-    ontransitionend:str
-    onupdateready:str
-    onupgradeneeded:str
-    onuserproximity:str
-    onvoiceschanged:str
-    onversionchange:str
-    onvisibilitychange:str
-    onvolumechange:str
-    onwaiting:str
-    onwheel:str
-    onforminput:str
-    onformchange:str
-    onmousewheel:str
+    manifest: str
+    href: str
+    target: Literal["_blank", "_parent", "_self", "_top", ] | str
+    crossorigin: Literal["anonymous", "use-credentials", ] | str
+    rel: str
+    media: str
+    hreflang: str
+    type: Literal["1", "A", "I", "a", "button", "checkbox", "color", "date", "datetime", "datetime-local", "email", "file", "hidden", "i", "image", "month", "number", "password", "radio", "range", "reset", "search", "submit", "tel", "text", "time", "url", "week", ] | str
+    sizes: str
+    name: str
+    http_equiv: str
+    content: str
+    charset: str
+    nonce: str
+    scoped: Literal["false", "true", ] | bool | str
+    onafterprint: str
+    onbeforeprint: str
+    onbeforeunload: str
+    onhashchange: str
+    onlanguagechange: str
+    onmessage: str
+    onoffline: str
+    ononline: str
+    onpagehide: str
+    onpageshow: str
+    onpopstate: str
+    onstorage: str
+    onunload: str
+    cite: str
+    reversed: Literal["false", "true", ] | bool | str
+    start: str
+    value: str
+    download: str
+    ping: str
+    datetime: str
+    alt: str
+    src: str
+    srcset: str
+    usemap: str
+    ismap: Literal["false", "true", ] | bool | str
+    width: str
+    height: str
+    decoding: Literal["async", "auto", "sync", ] | str
+    loading: Literal["eager", "lazy", ] | str
+    fetchpriority: Literal["auto", "high", "low", ] | str
+    referrerpolicy: Literal["no-referrer", "no-referrer-when-downgrade", "origin", "origin-when-cross-origin", "same-origin", "strict-origin", "strict-origin-when-cross-origin", "unsafe-url", ] | str
+    srcdoc: str
+    sandbox: Literal["allow-forms", "allow-modals", "allow-pointer-lock", "allow-popups", "allow-popups-to-escape-sandbox", "allow-same-origin", "allow-scripts", "allow-top-navigation", ] | str
+    seamless: Literal["false", "true", ] | bool | str
+    allowfullscreen: Literal["false", "true", ] | bool | str
+    data: str
+    typemustmatch: Literal["false", "true", ] | bool | str
+    form: str
+    poster: str
+    preload: Literal["auto", "metadata", "none", ] | str
+    autoplay: Literal["false", "true", ] | bool | str
+    mediagroup: str
+    loop: Literal["false", "true", ] | bool | str
+    muted: Literal["false", "true", ] | bool | str
+    controls: Literal["false", "true", ] | bool | str
+    default: Literal["false", "true", ] | bool | str
+    kind: Literal["captions", "chapters", "descriptions", "metadata", "subtitles", ] | str
+    label: str
+    srclang: str
+    coords: str
+    shape: Literal["circle", "default", "poly", "rect", ] | str
+    border: str
+    span: str
+    colspan: str
+    rowspan: str
+    headers: str
+    scope: Literal["col", "colgroup", "row", "rowgroup", ] | str
+    sorted: str
+    abbr: str
+    accept_charset: str
+    action: str
+    autocomplete: Literal["additional-name", "address-level1", "address-level2", "address-level3", "address-level4", "address-line1", "address-line2", "address-line3", "bday", "bday-day", "bday-month", "bday-year", "billing", "cc-additional-name", "cc-csc", "cc-exp", "cc-exp-month", "cc-exp-year", "cc-family-name", "cc-given-name", "cc-name", "cc-number", "cc-type", "country", "country-name", "current-password", "email", "family-name", "fax", "given-name", "home", "honorific-prefix", "honorific-suffix", "impp", "language", "mobile", "name", "new-password", "nickname", "off", "on", "organization", "organization-title", "pager", "photo", "postal-code", "sex", "shipping", "street-address", "tel", "tel-area-code", "tel-country-code", "tel-extension", "tel-local", "tel-local-prefix", "tel-local-suffix", "tel-national", "transaction-amount", "transaction-currency", "url", "username", "work", ] | str
+    enctype: Literal["application/x-www-form-urlencoded", "multipart/form-data", "text/plain", ] | str
+    method: Literal["dialog", "get", "post", ] | str
+    novalidate: Literal["false", "true", ] | bool | str
+    for_: str
+    accept: str
+    autofocus: Literal["false", "true", ] | bool | str
+    checked: Literal["false", "true", ] | bool | str
+    dirname: str
+    disabled: Literal["false", "true", ] | bool | str
+    formaction: str
+    formenctype: Literal["application/x-www-form-urlencoded", "multipart/form-data", "text/plain", ] | str
+    formmethod: Literal["get", "post", ] | str
+    formnovalidate: Literal["false", "true", ] | bool | str
+    formtarget: str
+    inputmode: Literal["email", "full-width-latin", "kana", "kana-name", "katakana", "latin", "latin-name", "latin-prose", "numeric", "tel", "url", "verbatim", ] | str
+    list: str
+    max: str
+    maxlength: str
+    min: str
+    minlength: str
+    multiple: Literal["false", "true", ] | bool | str
+    pattern: str
+    placeholder: str
+    popovertarget: str
+    popovertargetaction: str
+    readonly: Literal["false", "true", ] | bool | str
+    required: Literal["false", "true", ] | bool | str
+    size: str
+    step: str
+    selected: Literal["false", "true", ] | bool | str
+    cols: str
+    rows: str
+    wrap: Literal["hard", "soft", ] | str
+    low: str
+    high: str
+    optimum: str
+    open: Literal["false", "true", ] | bool | str
+    async_: Literal["false", "true", ] | bool | str
+    defer: Literal["false", "true", ] | bool | str
+    allow: str
+    accesskey: str
+    autocapitalize: str
+    autocorrect: Literal["off", "on", ] | str
+    class_: str
+    contenteditable: str
+    contextmenu: str
+    dir: Literal["auto", "ltr", "rtl", ] | str
+    draggable: Literal["false", "true", ] | bool | str
+    dropzone: str
+    enterkeyhint: Literal["done", "enter", "go", "next", "previous", "search", "send", ] | str
+    exportparts: str
+    hidden: Literal["false", "true", ] | bool | str
+    id: str
+    inert: str
+    is_: str
+    itemid: str
+    itemprop: str
+    itemref: str
+    itemscope: Literal["false", "true", ] | bool | str
+    itemtype: str
+    lang: str
+    part: str
+    popover: Literal["auto", "hint", "manual", ] | str
+    role: Literal["alert", "alertdialog", "application", "article", "banner", "button", "cell", "checkbox", "columnheader", "combobox", "complementary", "contentinfo", "definition", "dialog", "directory", "doc-abstract", "doc-acknowledgments", "doc-afterword", "doc-appendix", "doc-backlink", "doc-biblioentry", "doc-bibliography", "doc-biblioref", "doc-chapter", "doc-colophon", "doc-conclusion", "doc-cover", "doc-credit", "doc-credits", "doc-dedication", "doc-endnote", "doc-endnotes", "doc-epigraph", "doc-epilogue", "doc-errata", "doc-example", "doc-footnote", "doc-foreword", "doc-glossary", "doc-glossref", "doc-index", "doc-introduction", "doc-noteref", "doc-notice", "doc-pagebreak", "doc-pagelist", "doc-part", "doc-preface", "doc-prologue", "doc-pullquote", "doc-qna", "doc-subtitle", "doc-tip", "doc-toc", "document", "feed", "figure", "form", "grid", "gridcell", "group", "heading", "img", "link", "list", "listbox", "listitem", "log", "main", "marquee", "math", "menu", "menubar", "menuitem", "menuitemcheckbox", "menuitemradio", "navigation", "none", "note", "option", "presentation", "progressbar", "radio", "radiogroup", "region", "row", "rowgroup", "rowheader", "scrollbar", "search", "searchbox", "separator", "slider", "spinbutton", "status", "switch", "tab", "table", "tablist", "tabpanel", "term", "text", "textbox", "timer", "toolbar", "tooltip", "tree", "treegrid", "treeitem", ] | str
+    slot: str
+    spellcheck: Literal["false", "true", ] | bool | str
+    style: str
+    tabindex: str
+    title: str
+    translate: Literal["no", "yes", ] | str
+    virtualkeyboardpolicy: Literal["false", "true", ] | bool | str
+    onabort: str
+    onanimationend: str
+    onanimationiteration: str
+    onanimationstart: str
+    onappinstalled: str
+    onaudioprocess: str
+    onaudioend: str
+    onaudiostart: str
+    onbeginEvent: str
+    onblocked: str
+    onblur: str
+    onboundary: str
+    oncached: str
+    oncanplay: str
+    oncanplaythrough: str
+    onchange: str
+    onchargingchange: str
+    onchargingtimechange: str
+    onchecking: str
+    onclick: str
+    onclose: str
+    oncomplete: str
+    oncompositionend: str
+    oncompositionstart: str
+    oncompositionupdate: str
+    oncontextmenu: str
+    oncopy: str
+    oncut: str
+    ondblclick: str
+    ondevicechange: str
+    ondevicelight: str
+    ondevicemotion: str
+    ondeviceorientation: str
+    ondeviceproximity: str
+    ondischargingtimechange: str
+    onDOMActivate: str
+    onDOMAttributeNameChanged: str
+    onDOMAttrModified: str
+    onDOMCharacterDataModified: str
+    onDOMContentLoaded: str
+    onDOMElementNameChanged: str
+    onDOMFocusIn: str
+    onDOMFocusOut: str
+    onDOMNodeInserted: str
+    onDOMNodeInsertedIntoDocument: str
+    onDOMNodeRemoved: str
+    onDOMNodeRemovedFromDocument: str
+    onDOMSubtreeModified: str
+    ondownloading: str
+    ondrag: str
+    ondragend: str
+    ondragenter: str
+    ondragleave: str
+    ondragover: str
+    ondragstart: str
+    ondrop: str
+    ondurationchange: str
+    onemptied: str
+    onend: str
+    onended: str
+    onendEvent: str
+    onerror: str
+    onfocus: str
+    onfocusin: str
+    onfocusout: str
+    onfullscreenchange: str
+    onfullscreenerror: str
+    ongamepadconnected: str
+    ongamepaddisconnected: str
+    ongotpointercapture: str
+    onlostpointercapture: str
+    oninput: str
+    oninvalid: str
+    onkeydown: str
+    onkeypress: str
+    onkeyup: str
+    onlevelchange: str
+    onload: str
+    onloadeddata: str
+    onloadedmetadata: str
+    onloadend: str
+    onloadstart: str
+    onmark: str
+    onmessageerror: str
+    onmousedown: str
+    onmouseenter: str
+    onmouseleave: str
+    onmousemove: str
+    onmouseout: str
+    onmouseover: str
+    onmouseup: str
+    onnomatch: str
+    onnotificationclick: str
+    onnoupdate: str
+    onobsolete: str
+    onopen: str
+    onorientationchange: str
+    onpaste: str
+    onpause: str
+    onpointercancel: str
+    onpointerdown: str
+    onpointerenter: str
+    onpointerleave: str
+    onpointerlockchange: str
+    onpointerlockerror: str
+    onpointermove: str
+    onpointerout: str
+    onpointerover: str
+    onpointerup: str
+    onplay: str
+    onplaying: str
+    onprogress: str
+    onpush: str
+    onpushsubscriptionchange: str
+    onratechange: str
+    onreadystatechange: str
+    onrepeatEvent: str
+    onreset: str
+    onresize: str
+    onresourcetimingbufferfull: str
+    onresult: str
+    onresume: str
+    onscroll: str
+    onseeked: str
+    onseeking: str
+    onselect: str
+    onselectstart: str
+    onselectionchange: str
+    onshow: str
+    onslotchange: str
+    onsoundend: str
+    onsoundstart: str
+    onspeechend: str
+    onspeechstart: str
+    onstalled: str
+    onstart: str
+    onsubmit: str
+    onsuccess: str
+    onsuspend: str
+    onSVGAbort: str
+    onSVGError: str
+    onSVGLoad: str
+    onSVGResize: str
+    onSVGScroll: str
+    onSVGUnload: str
+    onSVGZoom: str
+    ontimeout: str
+    ontimeupdate: str
+    ontouchcancel: str
+    ontouchend: str
+    ontouchmove: str
+    ontouchstart: str
+    ontransitionend: str
+    onupdateready: str
+    onupgradeneeded: str
+    onuserproximity: str
+    onvoiceschanged: str
+    onversionchange: str
+    onvisibilitychange: str
+    onvolumechange: str
+    onwaiting: str
+    onwheel: str
+    onforminput: str
+    onformchange: str
+    onmousewheel: str
 
 
 class CSSProperty(TypedDict, total=False):

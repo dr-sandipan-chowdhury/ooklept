@@ -1,5 +1,16 @@
 [
   {
+    "name": "v",
+    "values": [
+      {
+        "name": "true"
+      },
+      {
+        "name": "false"
+      }
+    ]
+  },
+  {
     "name": "b",
     "values": [
       {

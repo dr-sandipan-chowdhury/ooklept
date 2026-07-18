@@ -1,30 +1,12 @@
+# ooklept/base.py
+
 import html
-import json
-import re
 from contextvars import ContextVar
-from typing import Unpack
+from typing import Unpack, get_args
 from warnings import warn
-import keyword
 
-from ooklept.webtypes import CSSProperty, HTMLAttribute, HTMLTag
-
-
-def preprocess(non_py_word: str) -> str | None:
-    if not non_py_word.isidentifier():
-        if "-" in non_py_word:
-            if non_py_word.rindex("-") == len(non_py_word) - 1:
-                raise ValueError(
-                    f"`-` in end of non_py_word `{non_py_word}` creates opening for ambiguity."
-                )
-            non_py_word = non_py_word.replace("-", "_")
-        else:
-            raise ValueError(
-                f"non_py_word `{non_py_word}` contains characters that can't be casted to python identifier without data loss."
-            )
-
-    while non_py_word in keyword.kwlist:
-        non_py_word += "_"
-    return non_py_word
+from ooklept.helper import recover_thing_from_python_identifier
+from ooklept.webtypes import CSSProperty, HTMLAttribute, HTMLTag, HTMLVoidTag
 
 
 class Element:
@@ -32,8 +14,11 @@ class Element:
         "current_context", default=None
     )
 
+    VOID_TAGS_SET = frozenset(get_args(HTMLVoidTag))
+
     def __init__(self, name: HTMLTag | str):
-        self.name = name
+        self._name = name
+        self._is_void = self._name in Element.VOID_TAGS_SET
         self._attrs_dict = {}
         self._style_dict = {}
         self._classes = []
@@ -46,8 +31,10 @@ class Element:
         ):  # Fixed: Infinite recursion: a.children.append(a)
             current._children.append(self)
 
-    def attr(self, d: dict[str, str] | None = None, **kwargs: Unpack[HTMLAttribute]):
-        d = dict[str, str](d or {})
+    def attr(
+        self, d: dict[str, str | bool] | None = None, **kwargs: Unpack[HTMLAttribute]
+    ):
+        d = dict(d or {})
 
         if "style" in kwargs or "style" in d:
             raise KeyError("Please use .style() method instead.")
@@ -65,17 +52,16 @@ class Element:
                     warn(
                         f"html attr {k} in kwargs is wasted as it is already in `d`. Data lost."
                     )
-        processed = {preprocess(k): v for k, v in to_be_preprocessed.items()}
+        processed = {
+            recover_thing_from_python_identifier(k): v
+            for k, v in to_be_preprocessed.items()
+        }
         processed.update(d)  # prefernce d > kwargs
         self._attrs_dict.update(processed)
         return self
 
     def class_(self, cls_str: str = "", *classes):
         classes = [*cls_str.split(), *classes]
-
-        for c in classes:
-            if not Helper.is_css_identifier(c):
-                raise re.PatternError(f"{c} is not a valid CSS Identifier.")
 
         if len(classes) > 0:
             for c in classes:
@@ -99,7 +85,10 @@ class Element:
                     warn(
                         f"css prop {k} in kwargs is wasted as it is already in `d`. Data lost."
                     )
-        processed = {preprocess(k): v for k, v in to_be_processed.items()}
+        processed = {
+            recover_thing_from_python_identifier(k): v
+            for k, v in to_be_processed.items()
+        }
         d.update(processed)  # preference d > kwargs
         self._style_dict.update(d)
         return self
@@ -110,6 +99,10 @@ class Element:
         return self
 
     def __enter__(self):
+        if self._is_void:
+            raise Exception(
+                f"`{self._name}` is a void tag hence can not have children. "
+            )
         self._token = Element.current_context.set(self)
         return self
 
@@ -117,24 +110,35 @@ class Element:
         Element.current_context.reset(self._token)
 
     def __str__(self):
-        attr_str = " ".join(
-            [f"{k}={json.dumps(str(v))}" for k, v in self._attrs_dict.items()]
-        )
+
+        attr_str = ""
+        for k, v in self._attrs_dict.items():
+            if isinstance(v, bool):
+                if v is True:
+                    attr_str += k + " "
+            else:
+                v = str(v)
+                attr_str += k + "=" + f'"{html.escape(v, quote=True)}"' + " "
+
+        # attr_str = " ".join(
+        #     [f'{k}="{html.escape(str(v), quote=True)}"' for k, v in self._attrs_dict.items()]
+        # )
 
         if len(self._style_dict) > 0:
-            style_str = json.dumps(
-                " ".join([f"{k}:{v};" for k, v in self._style_dict.items()])
-            )
-            attr_str += f" style={style_str}"
+            style_val = " ".join([f"{k}:{v};" for k, v in self._style_dict.items()])
+            attr_str += f' style="{html.escape(style_val, quote=True)}"'
 
         if len(self._classes) > 0:
-            class_str = json.dumps(" ".join(self._classes))
-            attr_str += f" class={class_str}"
+            class_val = " ".join(self._classes)
+            attr_str += f' class="{html.escape(class_val, quote=True)}"'
 
         if len(attr_str) > 0:
             attr_str = " " + attr_str
 
-        return f"<{self.name}{attr_str}>{''.join([str(i) for i in self._children])}</{self.name}>"
+        if self._is_void:
+            return f"<{self._name}{attr_str} />"
+
+        return f"<{self._name}{attr_str}>{''.join([str(i) for i in self._children])}</{self._name}>"
 
 
 class Text:
@@ -146,4 +150,3 @@ class Text:
 
     def __str__(self):
         return self.value
-

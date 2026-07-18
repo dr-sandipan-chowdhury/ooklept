@@ -1,8 +1,9 @@
+# ooklept/webtype_gen.py
+
 import json
 from pathlib import Path
 
-from ooklept.helper import Helper
-
+from ooklept.helper import convert_thing_to_python_identifier
 
 # Define and Validate `webdata
 webdata_dir = Path(__file__).parent / "webdata"
@@ -53,13 +54,14 @@ with open(css_schemaFile) as f:
     css_schema = json.load(f)
 
 
-
 # Funs
+
 
 def create_imports():
     return """from typing import Literal, TypedDict
 
 """
+
 
 def create_HTMLTag():
     taglist = []
@@ -70,13 +72,25 @@ def create_HTMLTag():
 HTMLTag = Literal{taglist}
 """
 
-def literal_from_vs(s:str)->list[str]:
+
+def create_HTMLVoidTag():
+    taglist = []
+    for tag in htmlTags:
+        if tname := tag.get("name"):
+            if tag.get("void"):
+                taglist.append(tname)
+    return f"""
+HTMLVoidTag = Literal{taglist}
+"""
+
+
+def literal_from_vs(s: str) -> list[str]:
     result = []
     for v in valueSets:
         if v.get("name") == s:
-            if vals:=v.get("values"):
+            if vals := v.get("values"):
                 for val in vals:
-                    if vname:=val.get("name"):
+                    if vname := val.get("name"):
                         result.append(vname)
     return result
 
@@ -85,28 +99,28 @@ def create_HTMLAttribute():
     attrs = dict[str, list[str]]()
     # 1. Specific Attributes
     for tag in htmlTags:
-        if attributes:=tag.get("attributes"):
+        if attributes := tag.get("attributes"):
             for attribute in attributes:
-                if aname:=attribute.get("name"):
+                if aname := attribute.get("name"):
                     if attrs.get(aname) is None:
                         attrs[aname] = []
-                    if vs:=attribute.get("valueSet"):
+                    if vs := attribute.get("valueSet"):
                         attrs[aname].extend(literal_from_vs(vs))
 
     # 2. Global Attributes
     for attr in htmlGlobalAttributes:
-        if aname:=attr.get("name"):
+        if aname := attr.get("name"):
             if attrs.get(aname) is None:
                 attrs[aname] = []
-            if vs:=attr.get("valueSet"):
+            if vs := attr.get("valueSet"):
                 attrs[aname].extend(literal_from_vs(vs))
 
     # 3. Events
     for attr in htmlEvents:
-        if aname:=attr.get("name"):
+        if aname := attr.get("name"):
             if attrs.get(aname) is None:
                 attrs[aname] = []
-            if vs:=attr.get("valueSet"):
+            if vs := attr.get("valueSet"):
                 attrs[aname].extend(literal_from_vs(vs))
 
     # compressing
@@ -124,12 +138,14 @@ def create_HTMLAttribute():
 class HTMLAttribute(TypedDict, total=False):
 """
     for k, v in attrs.items():
-        result += f'    {Helper.preprocess(k)}:'
+        result += f"    {convert_thing_to_python_identifier(k)}: "
         if len(v) > 0:
-            result+= "Literal["
+            result += "Literal["
             for vi in v:
                 result += f'"{vi}", '
             result += "] | "
+        if "true" in v and "false" in v:
+            result += "bool | "
         result += "str\n"
 
     return result
@@ -141,24 +157,29 @@ class CSSProperty(TypedDict, total=False):
 """
     kwlist = set()
     kw_val_dict = dict()
-    if css:=css_schema.get("css"):
-        if properties:=css.get("properties"):
-            if properties:=properties.get("entry"):
+    if css := css_schema.get("css"):
+        if properties := css.get("properties"):
+            if properties := properties.get("entry"):
                 for prop in properties:
-                    if dollar_prop:=prop.get("$"):
-                        if pname:=dollar_prop.get("name"):
+                    if dollar_prop := prop.get("$"):
+                        if pname := dollar_prop.get("name"):
                             kwlist.add(pname)
                             if "enum" in dollar_prop.get("restriction"):
-                                if vals:=prop.get("values"):
-                                    if val:=vals.get("value"):
+                                if vals := prop.get("values"):
+                                    if val := vals.get("value"):
                                         if isinstance(val, list):
                                             for v in val:
-                                                if v_:=v.get("$"):
-                                                    if vname:=v_.get("name"):
-                                                        if kw_val_dict.get(pname) is None:
+                                                if v_ := v.get("$"):
+                                                    if vname := v_.get("name"):
+                                                        if (
+                                                            kw_val_dict.get(pname)
+                                                            is None
+                                                        ):
                                                             kw_val_dict[pname] = [vname]
                                                         else:
-                                                            kw_val_dict[pname].append(vname)
+                                                            kw_val_dict[pname].append(
+                                                                vname
+                                                            )
                             if restriction := dollar_prop.get("restriction"):
                                 rl = [restriction]
                                 if kw_val_dict.get(pname) is None:
@@ -171,7 +192,7 @@ class CSSProperty(TypedDict, total=False):
     for i, k in enumerate(pylist):
         typestr = ""
         pytypestr = "str"
-        if ens:=kw_val_dict.get(kwlist[i]):
+        if ens := kw_val_dict.get(kwlist[i]):
             for i in ens:
                 typestr += f'"{i}", '
         if len(typestr) > 0:
@@ -186,9 +207,11 @@ def summate():
 
 {create_imports()}
 {create_HTMLTag()}
+{create_HTMLVoidTag()}
 {create_HTMLAttribute()}
 {create_CSSProperty()}
 """
 
+
 with open(Path(__file__).parent / "webtypes.py", "w") as f:
-    f.write(summate().strip()+"\n")
+    f.write(summate().strip() + "\n")
