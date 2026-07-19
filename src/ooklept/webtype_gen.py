@@ -146,7 +146,7 @@ class HTMLAttribute(TypedDict, total=False):
             result += "] | "
         if "true" in v and "false" in v:
             result += "bool | "
-        result += "str\n"
+        result += "str | None\n"
 
     return result
 
@@ -213,5 +213,10 @@ def summate():
 """
 
 
-with open(Path(__file__).parent / "webtypes.py", "w") as f:
-    f.write(summate().strip() + "\n")
+def main():
+    with open(Path(__file__).parent / "webtypes.py", "w") as f:
+        f.write(summate().strip() + "\n")
+
+
+if __name__ == "__main__":
+    main()

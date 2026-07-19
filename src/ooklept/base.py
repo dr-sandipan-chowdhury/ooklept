@@ -34,7 +34,11 @@ class Element:
     def attr(
         self, d: dict[str, str | bool] | None = None, **kwargs: Unpack[HTMLAttribute]
     ):
+        "Values None or False are removed."
         d = dict(d or {})
+
+        d = {k: v for k, v in d.items() if v is not None and v is not False}
+        kwargs = {k: v for k, v in kwargs.items() if v is not None and v is not False}
 
         # you can't set style or class from attr to remove confusions
         if "style" in kwargs or "style" in d:
@@ -94,7 +98,9 @@ class Element:
         self._style_dict.update(d)
         return self
 
-    def text(self, data: str):
+    def text(self, data: str | None = None):
+        if data is None:
+            return self
         with self:
             Text(data)
         return self

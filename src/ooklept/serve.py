@@ -36,7 +36,9 @@ def execute(path: str | Path, request_context:dict) -> str:
     with root:
         runpy.run_path(path,init_globals=init_vars, run_name="__main__")
 
-    return "".join(str(child) for child in root._children)
+    result = "".join(str(child) for child in root._children)
+    print(result)
+    return result
 
 
 @app.api_route("/{path:path}", methods=["GET", "POST"], response_class=HTMLResponse)
