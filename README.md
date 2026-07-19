@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.svg" width="180" alt="Ooklept logo">
+  <img src="https://raw.githubusercontent.com/dr-sandipan-chowdhury/ooklept/refs/heads/main/logo.svg" width="180" alt="Ooklept logo">
   <center><h1 style="font-family: monospace;"><span style="color:goldenrod">oo</span><span style="color: rgba(0, 44, 126, 0.827)">klept</span></h1></center>
 </p>
 
