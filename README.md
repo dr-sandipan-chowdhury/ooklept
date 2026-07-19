@@ -18,6 +18,7 @@
      "an egg"                           "a thief"
 ```
 
+---
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/dr-sandipan-chowdhury/ooklept/refs/heads/main/logo.svg" alt="ooklept logo" width="200">
