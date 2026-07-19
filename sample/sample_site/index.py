@@ -1,14 +1,12 @@
 # sample/sample_site/index.py
 
-from ooklept import o
+import ooklept as o
 
-_GET = globals()["_GET"]
-_POST = globals()["_POST"]
 
-username = str(_POST.get("username", ""))
+username = _POST.get("username") # type: ignore
 
 if username:
-    o.h1("Hello")
+    o.h1("Hey")
     o.p(username)
 
 else:

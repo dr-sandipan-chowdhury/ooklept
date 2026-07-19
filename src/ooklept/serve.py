@@ -3,22 +3,26 @@
 
 import argparse
 import runpy
+import uuid  # updated here
 from pathlib import Path
 
-from fastapi.requests import Request
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
 
 from ooklept.base import Element
-
+from ooklept.stores import stores
 
 app = FastAPI()
 
 ROOT = Path.cwd()
 
 
-def execute(path: str | Path, request_context:dict) -> str:
+COOKIE_NAME = "ooklet_id"  # updated here
+
+
+def execute(path: str | Path, request_context: dict) -> str:
     """
     Execute an Ooklept page and return the generated HTML.
     """
@@ -27,18 +31,22 @@ def execute(path: str | Path, request_context:dict) -> str:
 
     root = Element("__root__")
 
-    # Inject variables directly into the script's global execution state
-    init_vars = {
-        "_GET": request_context.get("GET", {}).copy(),
-        "_POST": request_context.get("POST", {}).copy(),
-    }
+    BROWSER_UUID = request_context["BROWSER_UUID"]
 
-    with root:
-        runpy.run_path(path,init_globals=init_vars, run_name="__main__")
 
-    result = "".join(str(child) for child in root._children)
-    print(result)
-    return result
+    get_token = stores.Get._set_context(request_context["GET"].copy())
+    post_token = stores.Post._set_context(request_context["POST"].copy())
+    local_token = stores.Local._set_context(BROWSER_UUID)
+
+    try:
+        with root:
+            runpy.run_path(path, run_name="__main__")
+    finally:
+        stores.Get._reset_context(get_token)
+        stores.Post._reset_context(post_token)
+        stores.Local._reset_context(local_token)
+
+    return "".join(str(child) for child in root._children)
 
 
 @app.api_route("/{path:path}", methods=["GET", "POST"], response_class=HTMLResponse)
@@ -72,10 +80,30 @@ async def serve(path: str, request: Request):
         form_data = await request.form()
         post_params = dict(form_data)
 
+    # updated here
+    cookies = dict(request.cookies)
+
+    if COOKIE_NAME not in cookies:
+        cookies[COOKIE_NAME] = str(uuid.uuid4())
+
     context = {
         "GET": get_params,
-        "POST": post_params
+        "POST": post_params,
+        "BROWSER_UUID": cookies[COOKIE_NAME],  # updated here
     }
+
+    html = execute(file, context)  # updated here
+
+    response = HTMLResponse(html)  # updated here
+
+    response.set_cookie(  # updated here
+        key=COOKIE_NAME,
+        value=cookies[COOKIE_NAME],
+        httponly=True,
+        samesite="lax",
+    )
+
+    return response  # updated here
 
     return execute(file, context)
 
@@ -92,12 +120,19 @@ def main():
     )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--reload", action="store_true")
 
     args = parser.parse_args()
 
     ROOT = Path(args.directory).resolve()
 
-    uvicorn.run(app, host=args.host, port=args.port)
+    uvicorn.run(
+        "ooklept.serve:app",
+        host=args.host,
+        port=args.port,
+        reload=args.reload,
+        reload_dirs=[str(ROOT)],
+    )
 
 
 if __name__ == "__main__":

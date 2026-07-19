@@ -77,8 +77,27 @@ class Element:
                     self._classes.append(c)  # Respects insertion orders.
         return self
 
-    def style(self, d: dict[str, str] | None = None, **kwargs: Unpack[CSSProperty]):
-        d = dict[str, str](d or {})
+    def style(self, d: dict[str, str|None] | None = None, **kwargs: Unpack[CSSProperty]):
+        d = dict[str, str|None](d or {})
+
+        # None --> none
+        nd = {}
+        nkwargs = {}
+
+        for k,v in d.items():
+            if v is None:
+                v = "none"
+            nd[k] = v
+
+        for k, v in kwargs.items():
+            if v is None:
+                v = "none"
+            nkwargs[k] = v
+
+        nd = d
+        nkwargs = kwargs
+
+
         to_be_processed = {}
         for k, v in kwargs.items():
             if k in CSSProperty.__annotations__:

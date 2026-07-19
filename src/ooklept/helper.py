@@ -3,6 +3,7 @@
 import keyword
 import sys
 from dataclasses import dataclass
+from typing import Any
 
 
 def convert_thing_to_python_identifier(thing: str) -> str | None:
