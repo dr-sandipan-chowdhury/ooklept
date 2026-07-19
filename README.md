@@ -1,5 +1,5 @@
 <p align="center>
-<img src="https://raw.githubusercontent.com/dr-sandipan-chowdhury/ooklept/refs/heads/main/banner.png">
+<img src="https://raw.githubusercontent.com/dr-sandipan-chowdhury/ooklept/refs/heads/main/banner.png" width="180" alt="Banner">
 </p>
 
 *`Image Source: Gemini`*
