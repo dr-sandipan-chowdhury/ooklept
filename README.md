@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/dr-sandipan-chowdhury/ooklept/refs/heads/main/banner.png" alt="Banner">
+<img src="https://raw.githubusercontent.com/dr-sandipan-chowdhury/ooklept/refs/heads/main/banner.png" alt="ooklept banner">
 </p>
 
 *`Image Source: Gemini`*
@@ -17,6 +17,12 @@
     ᾠόν (ōión)                       κλέπτης (kléptēs)
      "an egg"                           "a thief"
 ```
+
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/dr-sandipan-chowdhury/ooklept/refs/heads/main/logo.svg" alt="ooklept logo" width="200">
+</p>
+
 
 **ooklept** or '*egg thief*' refers to Python (🐍) the snake that steals bird's eggs (🪺/🥚).
 
