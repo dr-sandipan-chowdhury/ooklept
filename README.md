@@ -3,7 +3,7 @@
   <center><h1 style="font-family: monospace;"><span style="color:goldenrod">oo</span><span style="color: rgba(0, 44, 126, 0.827)">klept</span></h1></center>
 </p>
 
-```text
+```
                       [ OOKLEPT ]
                      ( Egg Thief )
                            |
@@ -15,7 +15,7 @@
    Ancient Greek                     Ancient Greek
     ᾠόν (ōión)                       κλέπτης (kléptēs)
      "an egg"                           "a thief"
-
+```
 
 **ooklept** or '*egg thief*' refers to Python (🐍) the snake that steals bird's eggs (🪺/🥚).
 
