@@ -4,7 +4,6 @@ from ooklept import o
 from ooklept.stores import stores
 
 # memory setup
-
 stores.Global.setdefault("notes", [])
 stores.Local.setdefault("notes", [])
 
@@ -22,8 +21,6 @@ with o.row(gap="2rem"):
                 o.button("+ Add Local")
         o.h1("Local Notes")
         with o.ul():
-            # for note in _LOCAL_MEMORY.get("notes"):
-            #     o.li(note)
             for note in stores.Local["notes"]:
                 o.li(note)
 
@@ -34,7 +31,5 @@ with o.row(gap="2rem"):
                 o.button("+ Add Global")
         o.h1("Global Notes")
         with o.ul():
-            # for note in _GLOBAL_MEMORY.get("notes"):
-            #     o.li(note)
             for note in stores.Global["notes"]:
                 o.li(note)

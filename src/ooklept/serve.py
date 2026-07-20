@@ -1,8 +1,11 @@
 # ooklept/serve.py
 # Serves a directory containing python files that uses ooklept Elements
 
+#!TODO: Thread-Safety for open datas
+
 import argparse
 import runpy
+import time
 import uuid  # updated here
 from pathlib import Path
 
@@ -20,7 +23,9 @@ ROOT = Path.cwd()
 
 
 COOKIE_NAME = "ooklet_id"  # updated here
-
+SESSION_STORAGE_DELETE_TIME = 60*60 # 1 hour
+LAST_CLEAN_UP = 0
+CLEAN_UP_INTERVAL = 10*60 # 10 min
 
 def execute(path: str | Path, request_context: dict) -> str:
     """
@@ -51,7 +56,7 @@ def execute(path: str | Path, request_context: dict) -> str:
 
 @app.api_route("/{path:path}", methods=["GET", "POST"], response_class=HTMLResponse)
 async def serve(path: str, request: Request):
-    global ROOT
+    global ROOT, LAST_CLEAN_UP
 
     if path == "":
         path = "index.py"
@@ -72,6 +77,17 @@ async def serve(path: str, request: Request):
 
     if not file.exists():
         raise HTTPException(404)
+
+    # clear local stores
+    if time.monotonic() - LAST_CLEAN_UP > 60:
+        to_remove_ks = []
+        for k, v in stores.Local._data.items():
+            if ls:=v.get("last_seen"):
+                if time.monotonic() - ls > SESSION_STORAGE_DELETE_TIME:
+                    to_remove_ks.append(k)
+        for k in to_remove_ks:
+            stores.Local._data.pop(k)
+        LAST_CLEAN_UP = time.monotonic()
 
     get_params = dict(request.query_params)
     post_params = {}

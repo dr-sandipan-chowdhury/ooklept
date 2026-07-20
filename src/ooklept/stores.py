@@ -2,6 +2,7 @@
 
 from collections.abc import MutableMapping
 from contextvars import ContextVar, Token
+import time
 
 
 class Stores:
@@ -20,7 +21,8 @@ class LocalStore(MutableMapping):
 
     def _set_context(self, browser_uuid: str):
         token = self._local_context.set(browser_uuid)
-        self._data.setdefault(browser_uuid, {})
+        self._data.setdefault(browser_uuid, {"memory":{}, "last_seen":time.monotonic()})
+        self._data[browser_uuid]["last_seen"] = time.monotonic()
         return token
 
     def _reset_context(self, token: Token):
@@ -30,7 +32,8 @@ class LocalStore(MutableMapping):
         uuid = self._local_context.get()
         if uuid is None:
             raise RuntimeError("No browser context")
-        return self._data.setdefault(uuid, {})
+        self._data.setdefault(uuid, {"memory":{}, "last_seen":time.monotonic()})
+        return self._data[uuid]["memory"]
 
 
     def __getitem__(self, key):
