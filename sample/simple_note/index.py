@@ -4,14 +4,21 @@ from ooklept import o
 from ooklept.stores import stores
 
 # memory setup
-stores.Global.setdefault("notes", [])
-stores.Local.setdefault("notes", [])
+stores.local_store.setdefault("notes", [])
+stores.global_store.setdefault("notes", [])
 
 # update memory
-if nl:=stores.Post.get("note_local"):
-    stores.Local["notes"].append(nl)
-if ng:=stores.Post.get("note_global"):
-    stores.Global["notes"].append(ng)
+if nl := stores.post_store.get("note_local"):
+    notes = stores.local_store.get("notes")
+    if notes is not None:
+        notes.append(nl)
+        stores.local_store.set("notes", notes)
+
+if ng := stores.post_store.get("note_global"):
+    notes = stores.global_store.get("notes")
+    if notes is not None:
+        notes.append(ng)
+        stores.global_store.set("notes", notes)
 
 with o.row(gap="2rem"):
     with o.column(gap="2rem"):
@@ -21,7 +28,8 @@ with o.row(gap="2rem"):
                 o.button("+ Add Local")
         o.h1("Local Notes")
         with o.ul():
-            for note in stores.Local["notes"]:
+
+            for note in stores.local_store.get("notes"):
                 o.li(note)
 
     with o.column(gap="2rem"):
@@ -31,5 +39,5 @@ with o.row(gap="2rem"):
                 o.button("+ Add Global")
         o.h1("Global Notes")
         with o.ul():
-            for note in stores.Global["notes"]:
+            for note in stores.global_store.get("notes"):
                 o.li(note)

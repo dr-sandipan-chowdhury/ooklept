@@ -6,7 +6,7 @@
 import argparse
 import runpy
 import time
-import uuid  # updated here
+import uuid
 from pathlib import Path
 
 import uvicorn
@@ -22,10 +22,8 @@ app = FastAPI()
 ROOT = Path.cwd()
 
 
-COOKIE_NAME = "ooklet_id"  # updated here
-SESSION_STORAGE_DELETE_TIME = 60*60 # 1 hour
-LAST_CLEAN_UP = 0
-CLEAN_UP_INTERVAL = 10*60 # 10 min
+COOKIE_NAME = "ooklet_id"
+
 
 def execute(path: str | Path, request_context: dict) -> str:
     """
@@ -38,25 +36,24 @@ def execute(path: str | Path, request_context: dict) -> str:
 
     BROWSER_UUID = request_context["BROWSER_UUID"]
 
-
-    get_token = stores.Get._set_context(request_context["GET"].copy())
-    post_token = stores.Post._set_context(request_context["POST"].copy())
-    local_token = stores.Local._set_context(BROWSER_UUID)
+    get_token = stores.get_store.set_context(request_context["GET"].copy())
+    post_token = stores.post_store.set_context(request_context["POST"].copy())
+    local_token = stores.local_store.set_context(BROWSER_UUID)
 
     try:
         with root:
             runpy.run_path(path, run_name="__main__")
     finally:
-        stores.Get._reset_context(get_token)
-        stores.Post._reset_context(post_token)
-        stores.Local._reset_context(local_token)
+        stores.get_store.reset_context(get_token)
+        stores.post_store.reset_context(post_token)
+        stores.local_store.reset_context(local_token)
 
     return "".join(str(child) for child in root._children)
 
 
 @app.api_route("/{path:path}", methods=["GET", "POST"], response_class=HTMLResponse)
 async def serve(path: str, request: Request):
-    global ROOT, LAST_CLEAN_UP
+    global ROOT
 
     if path == "":
         path = "index.py"
@@ -79,15 +76,7 @@ async def serve(path: str, request: Request):
         raise HTTPException(404)
 
     # clear local stores
-    if time.monotonic() - LAST_CLEAN_UP > 60:
-        to_remove_ks = []
-        for k, v in stores.Local._data.items():
-            if ls:=v.get("last_seen"):
-                if time.monotonic() - ls > SESSION_STORAGE_DELETE_TIME:
-                    to_remove_ks.append(k)
-        for k in to_remove_ks:
-            stores.Local._data.pop(k)
-        LAST_CLEAN_UP = time.monotonic()
+    stores.local_store.cleanup_stale_sessions()
 
     get_params = dict(request.query_params)
     post_params = {}
@@ -96,7 +85,6 @@ async def serve(path: str, request: Request):
         form_data = await request.form()
         post_params = dict(form_data)
 
-    # updated here
     cookies = dict(request.cookies)
 
     if COOKIE_NAME not in cookies:
@@ -105,23 +93,21 @@ async def serve(path: str, request: Request):
     context = {
         "GET": get_params,
         "POST": post_params,
-        "BROWSER_UUID": cookies[COOKIE_NAME],  # updated here
+        "BROWSER_UUID": cookies[COOKIE_NAME],
     }
 
-    html = execute(file, context)  # updated here
+    html = execute(file, context)
 
-    response = HTMLResponse(html)  # updated here
+    response = HTMLResponse(html)
 
-    response.set_cookie(  # updated here
+    response.set_cookie(
         key=COOKIE_NAME,
         value=cookies[COOKIE_NAME],
         httponly=True,
         samesite="lax",
     )
 
-    return response  # updated here
-
-    return execute(file, context)
+    return response
 
 
 def main():
