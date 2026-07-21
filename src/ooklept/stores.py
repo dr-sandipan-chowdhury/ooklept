@@ -3,7 +3,7 @@
 import time
 from contextvars import ContextVar, Token
 from threading import RLock
-from typing import Any
+from typing import Any, Callable
 
 
 class Stores:
@@ -43,6 +43,12 @@ class GlobalStore:
             if hasattr(v, "copy"):
                 return v.copy()
             return v
+
+    def update(self, key, v:Any|Callable):
+        if v is Callable:
+            d[k] = v(d[k])
+        else:
+            d[k] = v
 
     def has_key(self, key)->bool:
         with self._lock:
