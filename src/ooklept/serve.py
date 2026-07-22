@@ -5,7 +5,6 @@
 
 import argparse
 import runpy
-import time
 import uuid
 from pathlib import Path
 
@@ -38,7 +37,7 @@ def execute(path: str | Path, request_context: dict) -> str:
 
     get_token = stores.get_store.set_context(request_context["GET"].copy())
     post_token = stores.post_store.set_context(request_context["POST"].copy())
-    local_token = stores.local_store.set_context(BROWSER_UUID)
+    session_token = stores.session_store.set_context(BROWSER_UUID)
 
     try:
         with root:
@@ -46,7 +45,7 @@ def execute(path: str | Path, request_context: dict) -> str:
     finally:
         stores.get_store.reset_context(get_token)
         stores.post_store.reset_context(post_token)
-        stores.local_store.reset_context(local_token)
+        stores.session_store.reset_context(session_token)
 
     return "".join(str(child) for child in root._children)
 
@@ -76,7 +75,7 @@ async def serve(path: str, request: Request):
         raise HTTPException(404)
 
     # clear local stores
-    stores.local_store.cleanup_stale_sessions()
+    stores.session_store.cleanup_stale_sessions()
 
     get_params = dict(request.query_params)
     post_params = {}

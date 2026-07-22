@@ -6,10 +6,27 @@ from threading import RLock
 from typing import Any, Callable
 
 
+def post_track(name, default, converter:Callable = str):
+    if stores.post_store.has_key(name):
+        pn = stores.post_store.get(name)
+        return converter(pn)
+    else:
+        return default
+
+def get_track(name, default, converter = str):
+    if stores.get_store.has_key(name):
+        gn = stores.get_store.get(name)
+        return converter(gn)
+    else:
+        return default
+
+
+
+
 class Stores:
     def __init__(self):
         self.global_store = GlobalStore()
-        self.local_store = LocalStore()
+        self.session_store = SessionStore()
         self.get_store = ContextStore("get")
         self.post_store = ContextStore("post")
 
@@ -44,12 +61,6 @@ class GlobalStore:
                 return v.copy()
             return v
 
-    def update(self, key, v:Any|Callable):
-        if v is Callable:
-            d[k] = v(d[k])
-        else:
-            d[k] = v
-
     def has_key(self, key)->bool:
         with self._lock:
             return key in self._data
@@ -59,7 +70,7 @@ class GlobalStore:
             return len(self._data)
 
 
-class LocalStore:
+class SessionStore:
     def __init__(self):
         self._data = {}
         self._lock = RLock()
