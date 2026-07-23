@@ -2,6 +2,12 @@
 * Instead of single `GlobalStore` use per-app or per-page Storage
 * Move sessions to Redis with TTL to stop unbound session creation
 * Pronlem: In-memory-only stores don't scale horizontally. GlobalStore/SessionStore live in process memory, so running multiple worker processes (which you'll want for the blocking-event-loop issue above) breaks session/global-store consistency between workers. This needs an external backing store option before it's production-viable at any real scale.
+* New Storage System:
+  * App Store: Storage for Whole Application. Per App. i.e. One Always. [Permanent] :SQLITE
+  * Page Store: Storage for A Page/Route. Per Page. [Permanent] :SQLITE
+  * Session Store: Storage for a Session. Per Browser[Temoprary] :Redis with TTL
+  * Get/Post Store: Per request Storage. [Ultrashort]
+  * User Store: User's Storage. [Permanent] :SQLITE
 
 # Idea from Claude
 This is the one where I'd genuinely slow down and think about interface design first, because the fix isn't "swap in Redis" — it's "make the storage backend swappable at all," since right now `GlobalStore` and `SessionStore` bake "it's a Python dict in this process" into their implementation, not just their behavior.
