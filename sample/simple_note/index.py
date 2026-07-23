@@ -1,7 +1,14 @@
 # ooklept/index.py
 
 from ooklept import o
-from ooklept.stores import stores
+from ooklept.nojsonlycss import use_pico_css
+from ooklept.stores import stores, post_track
+
+use_pico_css()
+
+session_note = post_track("note_local", None, None)
+global_note = post_track("note_global", None, None)
+
 
 # memory setup
 stores.session_store.setdefault("notes", [])

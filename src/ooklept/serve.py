@@ -8,12 +8,20 @@ import runpy
 import uuid
 from pathlib import Path
 
+import anyio
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.requests import Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 
 from ooklept.base import Element
+from ooklept.cookies import sign_session_id, verify_session_cookie
+from ooklept.csrf import (
+    CSRF_EXEMPT_CONTENT_TYPES,
+    CSRF_EXEMPT_PATHS,
+    CSRF_FIELD_NAME,
+    verify_csrf_token,
+)
 from ooklept.stores import stores
 
 app = FastAPI()
@@ -22,6 +30,8 @@ ROOT = Path.cwd()
 
 
 COOKIE_NAME = "ooklet_id"
+EXECUTABLE_EXTENSION = ".py"
+STATIC_PREFIX = "static/"
 
 
 def execute(path: str | Path, request_context: dict) -> str:
@@ -42,6 +52,11 @@ def execute(path: str | Path, request_context: dict) -> str:
     try:
         with root:
             runpy.run_path(path, run_name="__main__")
+            # if the page called stores.session_store.rotate(), reflect the
+            # new id back to the caller before we tear the context down
+            rotated = stores.session_store.get_rotated_id()
+            if rotated is not None:
+                request_context["BROWSER_UUID"] = rotated
     finally:
         stores.get_store.reset_context(get_token)
         stores.post_store.reset_context(post_token)
@@ -68,10 +83,20 @@ async def serve(path: str, request: Request):
     if not file.exists():
         raise HTTPException(404)
 
+    # --- static branch: serve raw bytes, never touches runpy ---
+    if path.startswith(STATIC_PREFIX):
+        if file.is_dir():
+            raise HTTPException(404)  # no directory listing
+        return FileResponse(file)
+        # --- end static branch ---
+
     if file.is_dir():
         file = file / "index.py"
 
     if not file.exists():
+        raise HTTPException(404)
+
+    if file.suffix != ".py":
         raise HTTPException(404)
 
     # clear local stores
@@ -84,26 +109,48 @@ async def serve(path: str, request: Request):
         form_data = await request.form()
         post_params = dict(form_data)
 
-    cookies = dict(request.cookies)
+    raw_cookie = request.cookies.get(COOKIE_NAME)
+    session_id = verify_session_cookie(raw_cookie) if raw_cookie else None
 
-    if COOKIE_NAME not in cookies:
-        cookies[COOKIE_NAME] = str(uuid.uuid4())
+    if session_id is None:
+        session_id = str(uuid.uuid4())
+
+    # --- CSRF check ---
+    # Must run before execute(), so a forged POST never reaches page code.
+    if request.method == "POST" and path not in CSRF_EXEMPT_PATHS:
+        content_type = request.headers.get("content-type", "").split(";")[0].strip()
+
+        if content_type not in CSRF_EXEMPT_CONTENT_TYPES:
+            # session_id here came from verify_session_cookie above — if it was
+            # None, we just minted a fresh one, which can't have a token issued
+            # against it yet, so any submitted token is necessarily invalid.
+            check_token = stores.session_store.set_context(session_id)
+            try:
+                submitted = post_params.get(CSRF_FIELD_NAME)
+                token_ok = verify_csrf_token(submitted)
+            finally:
+                stores.session_store.reset_context(check_token)
+
+            if not token_ok:
+                raise HTTPException(403, "CSRF token missing or invalid")
+    # --- end CSRF check ---
 
     context = {
         "GET": get_params,
         "POST": post_params,
-        "BROWSER_UUID": cookies[COOKIE_NAME],
+        "BROWSER_UUID": session_id,
     }
 
-    html = execute(file, context)
-
+    html = await anyio.to_thread.run_sync(execute, file, context)
+    final_session_id = context["BROWSER_UUID"]
     response = HTMLResponse(html)
 
     response.set_cookie(
         key=COOKIE_NAME,
-        value=cookies[COOKIE_NAME],
+        value=sign_session_id(final_session_id),
         httponly=True,
         samesite="lax",
+        secure=True,
     )
 
     return response

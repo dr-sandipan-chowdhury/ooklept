@@ -1,5 +1,8 @@
 from ooklept import o
+from ooklept.nojsonlycss import use_pico_css
 from ooklept.stores import post_track
+
+use_pico_css()
 
 num1 = post_track("num1", 0, float)
 num2 = post_track("num2", 0, float)

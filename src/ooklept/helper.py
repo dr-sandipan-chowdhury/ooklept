@@ -3,8 +3,9 @@
 import keyword
 import sys
 from dataclasses import dataclass
-from typing import Any
+import re
 
+_html_attr_looks_like = re.compile(r"^[a-zA-Z-_][a-zA-Z0-9_-]*$")
 
 def convert_thing_to_python_identifier(thing: str) -> str | None:
     if thing == "":
@@ -49,3 +50,6 @@ def get_multi_dict():
         _GET=sys._getframe(1).f_globals.get("_GET", {}),
         _POST=sys._getframe(1).f_globals.get("_POST", {}),
     )
+
+def is_valid_attr_name(attr_name:str):
+    return _html_attr_looks_like.match(attr_name)

@@ -4,8 +4,9 @@ import html
 from contextvars import ContextVar
 from typing import Unpack, get_args
 from warnings import warn
+import re
 
-from ooklept.helper import recover_thing_from_python_identifier
+from ooklept.helper import recover_thing_from_python_identifier, is_valid_attr_name
 from ooklept.webtypes import CSSProperty, HTMLAttribute, HTMLTag, HTMLVoidTag
 
 
@@ -36,7 +37,6 @@ class Element:
     ):
         "Values None or False are removed."
         d = dict(d or {})
-
         d = {k: v for k, v in d.items() if v is not None and v is not False}
         kwargs = {k: v for k, v in kwargs.items() if v is not None and v is not False}
 
@@ -94,10 +94,6 @@ class Element:
                 v = "none"
             nkwargs[k] = v
 
-        nd = d
-        nkwargs = kwargs
-
-
         to_be_processed = {}
         for k, v in kwargs.items():
             if k in CSSProperty.__annotations__:
@@ -136,9 +132,14 @@ class Element:
         Element.current_context.reset(self._token)
 
     def __str__(self):
+        if not is_valid_attr_name(self._name):
+            raise SyntaxError(f"{self._name} is not a valid html tag name")
 
         attr_str = ""
         for k, v in self._attrs_dict.items():
+            if not is_valid_attr_name(k):
+                raise SyntaxError(f"{k} is not a valid html attribute.")
+
             if isinstance(v, bool):
                 if v is True:
                     attr_str += k + " "
