@@ -1,9 +1,8 @@
 # ooklept/serve.py
 # Serves a directory containing python files that uses ooklept Elements
 
-#!TODO: Thread-Safety for open datas
-
 import argparse
+import os
 import runpy
 import uuid
 from pathlib import Path
@@ -22,12 +21,11 @@ from ooklept.csrf import (
     CSRF_FIELD_NAME,
     verify_csrf_token,
 )
-from ooklept.stores import stores
+from ooklept.stores import set_up_storage_files, stores
 
 app = FastAPI()
 
 ROOT = Path.cwd()
-
 
 COOKIE_NAME = "ooklet_id"
 EXECUTABLE_EXTENSION = ".py"
@@ -96,11 +94,11 @@ async def serve(path: str, request: Request):
     if not file.exists():
         raise HTTPException(404)
 
-    if file.suffix != ".py":
+    if file.suffix != EXECUTABLE_EXTENSION:
         raise HTTPException(404)
 
-    # clear local stores
-    stores.session_store.cleanup_stale_sessions()
+    # # clear local stores
+    # stores.session_store.cleanup_stale_sessions()
 
     get_params = dict(request.query_params)
     post_params = {}
@@ -173,6 +171,8 @@ def main():
     args = parser.parse_args()
 
     ROOT = Path(args.directory).resolve()
+    os.chdir(ROOT)  # Changing the directory so storage works out of the box
+    set_up_storage_files()
 
     uvicorn.run(
         "ooklept.serve:app",
