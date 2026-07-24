@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from ooklept.helper import convert_thing_to_python_identifier
+from ooklept.utility import convert_thing_to_python_identifier
 
 # Define and Validate `webdata
 webdata_dir = Path(__file__).parent / "webdata"

@@ -21,7 +21,7 @@ from ooklept.csrf import (
     CSRF_FIELD_NAME,
     verify_csrf_token,
 )
-from ooklept.stores import set_up_storage_files, stores
+from ooklept.stores import _set_up_storage_files, stores
 
 app = FastAPI()
 
@@ -172,7 +172,7 @@ def main():
 
     ROOT = Path(args.directory).resolve()
     os.chdir(ROOT)  # Changing the directory so storage works out of the box
-    set_up_storage_files()
+    _set_up_storage_files()
 
     uvicorn.run(
         "ooklept.serve:app",

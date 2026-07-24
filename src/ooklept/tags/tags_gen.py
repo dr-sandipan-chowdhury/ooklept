@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from ooklept.helper import convert_thing_to_python_identifier
+from ooklept.utility import convert_thing_to_python_identifier
 from ooklept.webtype_gen import htmlTags, literal_from_vs
 
 

@@ -1,9 +1,13 @@
 # ooklept/cache.py
 
+import uuid as uuid_lib
+from collections.abc import Iterator, MutableMapping
+from contextvars import ContextVar, Token
+
 from diskcache import Cache
 
 
-class PermanentCache(Cache):
+class PermanentStore(Cache):
     """
     A diskcache.Cache subclass that structurally cannot expire or evict data.
 
@@ -87,13 +91,7 @@ class PermanentCache(Cache):
         )
 
 
-import uuid as uuid_lib
-from contextvars import ContextVar, Token
-
-from diskcache import Cache
-
-
-class SessionCache(Cache):
+class SessionStore(Cache):
     """
     Bounded, self-expiring, per-browser-scoped cache for session data.
 
@@ -309,3 +307,66 @@ class SessionCache(Cache):
         return sum(
             1 for k in super().__iter__() if isinstance(k, str) and k.startswith(prefix)
         )
+
+
+class ContextStore(MutableMapping):
+    """A dict-like object whose underlying storage is a ContextVar.
+
+    Usage is identical to a normal dict:
+
+        store = ContextStore("request")
+        token = store.set_context({})
+        store["user_id"] = 123
+        store["user_id"]           # 123
+        "user_id" in store         # True
+        store.get("missing", None) # None
+        len(store)
+        del store["user_id"]
+        store.reset_context(token)
+    """
+
+    def __init__(self, name: str):
+        self.name = name
+        self._context: ContextVar[dict | None] = ContextVar(name, default=None)
+
+    # --- context lifecycle -------------------------------------------------
+
+    def set_context(self, value: dict) -> Token:
+        return self._context.set(value)
+
+    def reset_context(self, token: Token) -> None:
+        self._context.reset(token)
+
+    def _current_dict(self) -> dict:
+        d = self._context.get()
+        if d is None:
+            raise RuntimeError(f"No context provided for store: {self.name}")
+        return d
+
+    # --- MutableMapping required methods -----------------------------------
+
+    def __getitem__(self, key):
+        return self._current_dict()[key]
+
+    def __setitem__(self, key, value) -> None:
+        self._current_dict()[key] = value
+
+    def __delitem__(self, key) -> None:
+        del self._current_dict()[key]
+
+    def __iter__(self) -> Iterator:
+        return iter(self._current_dict())
+
+    def __len__(self) -> int:
+        return len(self._current_dict())
+
+    # --- niceties ------------------------------------------------------------
+
+    def __contains__(self, key) -> bool:
+        return key in self._current_dict()
+
+    def __repr__(self) -> str:
+        try:
+            return f"{self.__class__.__name__}({self.name!r}, {self._current_dict()!r})"
+        except RuntimeError:
+            return f"{self.__class__.__name__}({self.name!r}, <no context>)"

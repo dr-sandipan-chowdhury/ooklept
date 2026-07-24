@@ -2,12 +2,10 @@
 
 import os
 import re
-from collections.abc import Callable
-from contextvars import ContextVar, Token
 from pathlib import Path
 
-from ooklept.cache import PermanentCache, SessionCache
 from ooklept.sharding import shard_index
+from ooklept.storage_classes import ContextStore, PermanentStore, SessionStore
 
 PRIVATE_DIR_NAME = "private"
 DATABASE_DIR_NAME = "ookleptdb"
@@ -21,7 +19,8 @@ SESSION_STORAGE_DIR_NAME = "session"
 PAGE_SHARD_NUM = 8
 
 
-def set_up_storage_files():
+# Internal Functions
+def _set_up_storage_files():
     # cwd will be the folder there serve.py acts
     cwd = os.getcwd()
 
@@ -58,7 +57,7 @@ def set_up_storage_files():
 def _get_app_store():
     p = Path(PRIVATE_DIR_NAME) / DATABASE_DIR_NAME / APP_STORAGE_DIR_NAME
     if p.exists() and p.is_dir():
-        return PermanentCache(p)
+        return PermanentStore(p)
     raise NotADirectoryError(
         f"{p} is not a dir. you should run `set_up_storage_files` before accessing it."
     )
@@ -67,7 +66,7 @@ def _get_app_store():
 def _get_user_store():
     p = Path(PRIVATE_DIR_NAME) / DATABASE_DIR_NAME / USER_STORAGE_DIR_NAME
     if p.exists() and p.is_dir():
-        return PermanentCache(p)
+        return PermanentStore(p)
     raise NotADirectoryError(
         f"{p} is not a dir. you should run `set_up_storage_files` before accessing it."
     )
@@ -91,72 +90,42 @@ def _get_page_store(page_path: str):
 def _get_session_store():
     p = Path(PRIVATE_DIR_NAME) / DATABASE_DIR_NAME / SESSION_STORAGE_DIR_NAME
     if p.exists() and p.is_dir():
-        return SessionCache(p)
+        return SessionStore(p)
     raise NotADirectoryError(
         f"{p} is not a dir. you should run `set_up_storage_files` before accessing it."
     )
 
 
-def post_track(name, default, converter: Callable = str):
-    if stores.post_store.has_key(name):
-        pn = stores.post_store.get(name)
-        return converter(pn)
-    else:
-        return default
-
-
-def get_track(name, default, converter=str):
-    if stores.get_store.has_key(name):
-        gn = stores.get_store.get(name)
-        return converter(gn)
-    else:
-        return default
-
-
-class ContextStore:
-    def __init__(self, name: str):
-        self.name = name
-        self._context: ContextVar[dict | None] = ContextVar(name, default=None)
-
-    def set_context(self, value: dict):
-        return self._context.set(value)
-
-    def reset_context(self, token: Token):
-        self._context.reset(token)
-
-    def _current_dict(self) -> dict:
-        d = self._context.get()
-        if d is None:
-            raise RuntimeError(f"No context provided for store: {self.name}")
-        return d
-
-    def get(self, key):
-        return self._current_dict().get(key)
-
-    def set(self, key, value):
-        self._current_dict()[key] = value
-
-    def setdefault(self, key, value):
-        return self._current_dict().setdefault(key, value)
-
-    def pop(self, key, *default):
-        return self._current_dict().pop(key, *default)
-
-    def has_key(self, key) -> bool:
-        return key in self._current_dict()
-
-    def __len__(self):
-        return len(self._current_dict())
-
-
 class Stores:
+    """
+    Gives access to 6 different types storage of the App.
+    # App Storage:
+        - It is an app level global storage that can be accessed by any [page].py
+        - Accessed via `stores.app_store`
+    # Page Storage:
+        - It is an page level global storage that can be accessed only by a specific [page].py
+        - Accessed via `stores.page_store(path)`
+    # User Storage:
+        - It is an user specific storage for the currently logged in user
+        - Accessed via `stores.user_store`
+    # Session Storage:
+        - It is a browser specific storage bound to a specific session in that browser.
+        - Accessed via `stores.session_store`
+    # Get Storage:
+        - It is a per-request storage containing query data from a get request
+        - Accessed via `stores.get_store`
+    # Post Storage:
+        - It is a per-request storage containing form data from a post request
+        - Accessed via `stores.post_store`
+    """
+
     def __init__(self):
         self._app_store = None
         self._user_store = None
         self._session_store = None
         self.get_store = ContextStore("get")
         self.post_store = ContextStore("post")
-        self._page_stores: dict[int, PermanentCache] = {}
+        self._page_stores: dict[int, PermanentStore] = {}
 
     @property
     def app_store(self):
@@ -183,4 +152,4 @@ class Stores:
         return self._page_stores[shard]
 
 
-stores = Stores()  # now safe — no filesystem access happens here
+stores = Stores()

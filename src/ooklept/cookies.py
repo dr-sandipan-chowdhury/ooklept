@@ -1,9 +1,9 @@
-import hmac
 import hashlib
+import hmac
 import os
 import secrets
 
-#! TODO
+# TODO
 # In production, load this from an env var / secrets manager, not generated at random each boot
 # (a random secret each restart would silently invalidate all existing sessions, which is fine
 # for security but you may want persistence across restarts).

@@ -4,9 +4,8 @@ import html
 from contextvars import ContextVar
 from typing import Unpack, get_args
 from warnings import warn
-import re
 
-from ooklept.helper import recover_thing_from_python_identifier, is_valid_attr_name
+from ooklept.utility import is_valid_attr_name, recover_thing_from_python_identifier
 from ooklept.webtypes import CSSProperty, HTMLAttribute, HTMLTag, HTMLVoidTag
 
 
@@ -77,14 +76,16 @@ class Element:
                     self._classes.append(c)  # Respects insertion orders.
         return self
 
-    def style(self, d: dict[str, str|None] | None = None, **kwargs: Unpack[CSSProperty]):
-        d = dict[str, str|None](d or {})
+    def style(
+        self, d: dict[str, str | None] | None = None, **kwargs: Unpack[CSSProperty]
+    ):
+        d = dict[str, str | None](d or {})
 
         # None --> none
         nd = {}
         nkwargs = {}
 
-        for k,v in d.items():
+        for k, v in d.items():
             if v is None:
                 v = "none"
             nd[k] = v
