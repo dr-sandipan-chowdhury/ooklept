@@ -1,9 +1,7 @@
-# ooklept/helper.py
+# ooklept/utility.py
 
 import keyword
 import re
-import sys
-from dataclasses import dataclass
 
 _html_attr_looks_like = re.compile(r"^[a-zA-Z-_][a-zA-Z0-9_-]*$")
 
@@ -38,19 +36,6 @@ def recover_thing_from_python_identifier(python_identifier: str) -> str | None:
 
     thing = python_identifier.replace("_", "-")
     return thing
-
-
-@dataclass
-class MultiDict:
-    _GET: dict[str, str]
-    _POST: dict[str, str]
-
-
-def get_multi_dict():
-    return MultiDict(
-        _GET=sys._getframe(1).f_globals.get("_GET", {}),
-        _POST=sys._getframe(1).f_globals.get("_POST", {}),
-    )
 
 
 def is_valid_attr_name(attr_name: str):

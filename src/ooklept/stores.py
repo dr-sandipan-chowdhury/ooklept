@@ -1,10 +1,10 @@
 # ooklept/stores.py
 
+import hashlib
 import os
 import re
 from pathlib import Path
 
-from ooklept.sharding import shard_index
 from ooklept.storage_classes import ContextStore, PermanentStore, SessionStore
 
 PRIVATE_DIR_NAME = "private"
@@ -20,6 +20,13 @@ PAGE_SHARD_NUM = 8
 
 
 # Internal Functions
+
+
+def _shard_index(key: str, num_shards: int) -> int:
+    digest = hashlib.md5(key.encode()).hexdigest()
+    return int(digest, 16) % num_shards
+
+
 def _set_up_storage_files():
     # cwd will be the folder there serve.py acts
     cwd = os.getcwd()
@@ -73,7 +80,7 @@ def _get_user_store():
 
 
 def _get_page_store(page_path: str):
-    shard = shard_index(page_path, PAGE_SHARD_NUM)
+    shard = _shard_index(page_path, PAGE_SHARD_NUM)
     p = (
         Path(PRIVATE_DIR_NAME)
         / DATABASE_DIR_NAME
@@ -146,7 +153,7 @@ class Stores:
         return self._session_store
 
     def page_store(self, page_path: str):
-        shard = shard_index(page_path, PAGE_SHARD_NUM)
+        shard = _shard_index(page_path, PAGE_SHARD_NUM)
         if shard not in self._page_stores:
             self._page_stores[shard] = _get_page_store(page_path)
         return self._page_stores[shard]
