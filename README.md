@@ -2,7 +2,6 @@
 <img src="https://raw.githubusercontent.com/dr-sandipan-chowdhury/ooklept/refs/heads/main/ooklept-banner-logo.svg" alt="ooklept banner">
 </p>
 
-*`Image Source: Gemini`*
 
 ```
                       [ OOKLEPT ]
